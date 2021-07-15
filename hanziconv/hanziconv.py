@@ -31,23 +31,27 @@ class by doing:
 import os
 from .charmap import simplified_charmap, traditional_charmap
 
-
 class HanziConv(object):
     """This class supports hanzi (漢字) convention between simplified and
     traditional format"""
     __traditional_charmap = traditional_charmap
     __simplified_charmap = simplified_charmap
 
+    EXCLUDE = '千干曲了表蒙迭舍克'
+
     @classmethod
-    def __convert(cls, text, toTraditional=True):
+    def __convert(cls, text, toTraditional=True, exclude=None):
         """Convert `text` to Traditional characters if `toTraditional` is
         True, else convert to simplified characters
 
         :param text:           data to convert
         :param toTraditional:  True -- convert to traditional text
                                False -- covert to simplified text
+        :param exclude:        iterable of symbols to exclude from converting
         :returns:              converted 'text`
         """
+        exclude = cls.EXCLUDE + exclude if exclude else cls.EXCLUDE
+
         if isinstance(text, bytes):
             text = text.decode('utf-8')
 
@@ -59,6 +63,9 @@ class HanziConv(object):
 
         final = []
         for c in text:
+            if c in exclude:
+                final.append(c)
+                continue
             index = fromMap.find(c)
             if index != -1:
                 final.append(toMap[index])
